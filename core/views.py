@@ -71,7 +71,7 @@ class ColecaoList(generics.ListCreateAPIView):
     serializer_class = ColecaoSerializer
     name = 'colecao-list'
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def perform_create(self, serializer):
         serializer.save(colecionador=self.request.user)
@@ -82,4 +82,5 @@ class ColecaoDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ColecaoSerializer
     name = 'colecao-detail'
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,
+                          IsCurrentUserOwnerOrReadOnly)
