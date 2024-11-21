@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from .models import Livro, Autor, Categoria
-from .serializers import LivroSerializer, AutorSerializer, CategoriaSerializer
+from .models import Livro, Autor, Categoria, Colecao
+from .serializers import LivroSerializer, AutorSerializer, CategoriaSerializer, ColecaoSerializer
 from core.filters import LivroFilter
 
 
@@ -14,6 +14,7 @@ class ApiRoot(generics.GenericAPIView):
             "livros": reverse(LivroList.name, request=request),
             "autores": reverse(AutorList.name, request=request),
             "categorias": reverse(CategoriaList.name, request=request),
+            "colecoes": reverse(ColecaoList.name, request=request),
         })
 
 
@@ -57,3 +58,16 @@ class CategoriaDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
     name = 'categoria-detail'
+
+
+class ColecaoList(generics.ListCreateAPIView):
+    queryset = Colecao.objects.all()
+    serializer_class = ColecaoSerializer
+    name = 'colecao-list'
+    ordering_fields = ['titulo', 'autor', 'categoria', 'publicado_em']
+
+
+class ColecaoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Colecao.objects.all()
+    serializer_class = ColecaoSerializer
+    name = 'colecao-detail'
