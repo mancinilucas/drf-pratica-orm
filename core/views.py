@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from .models import Livro, Autor, Categoria, Colecao
-from .serializers import LivroSerializer, AutorSerializer, CategoriaSerializer, ColecaoSerializer
+from .serializers import LivroSerializer, AutorSerializer, CategoriaSerializer, ColecaoSerializer, ApiRootSerializer
 from core.filters import LivroFilter
 from .custom_permissions import IsCurrentUserOwnerOrReadOnly
 from rest_framework import permissions
@@ -12,6 +12,7 @@ from rest_framework.authentication import TokenAuthentication
 
 
 class ApiRoot(generics.GenericAPIView):
+    serializer_class = ApiRootSerializer
     name = "api-root"
 
     def get(self, request, *args, **kwargs):

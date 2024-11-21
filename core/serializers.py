@@ -80,3 +80,7 @@ class ColecaoSerializer(serializers.Serializer):
             instance.livros.set(livros_data)
 
         return instance
+
+
+class ApiRootSerializer(serializers.Serializer):
+    detail = serializers.CharField(help_text="Link para os endpoints da API")

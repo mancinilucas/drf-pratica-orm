@@ -146,8 +146,14 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "RESTIC Back-end API",
-    "DESCRIPTION": "Your project description",
+    "TITLE": "Library API",
+    "DESCRIPTION": "Sistema de Gestão de livros",
     "VERSION": "1.0.0",
-    "SERVE INCLUDE SCHEMA": False,
+    "SERVE_INCLUDE_SCHEMA": False,
+    "AUTHENTICATION_WHITELIST": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+    "SWAGGER_UI_SETTINGS": {
+        "persistAuthorization": True,
+    },
 }
