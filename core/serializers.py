@@ -56,7 +56,10 @@ class ColecaoSerializer(serializers.Serializer):
     nome = serializers.CharField(max_length=100)
     descricao = serializers.CharField(max_length=200, required=False)
     livros = serializers.PrimaryKeyRelatedField(
-        queryset=Livro.objects.all(), many=True)
+        queryset=Livro.objects.all(), many=True, write_only=True
+    )
+    livros_detalhes = LivroSerializer(
+        many=True, read_only=True, source="livros")
     colecionador = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), required=False)
 
@@ -67,10 +70,13 @@ class ColecaoSerializer(serializers.Serializer):
         return colecao
 
     def update(self, instance, validated_data):
+        livros_data = validated_data.pop('livros', None)
         instance.nome = validated_data.get('nome', instance.nome)
         instance.descricao = validated_data.get(
             'descricao', instance.descricao)
-        instance.colecionador = validated_data.get(
-            'colecionador', instance.colecionador)
         instance.save()
+
+        if livros_data is not None:
+            instance.livros.set(livros_data)
+
         return instance
