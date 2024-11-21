@@ -4,6 +4,9 @@ from rest_framework.reverse import reverse
 from .models import Livro, Autor, Categoria, Colecao
 from .serializers import LivroSerializer, AutorSerializer, CategoriaSerializer, ColecaoSerializer
 from core.filters import LivroFilter
+from .custom_permissions import IsCurrentUserOwnerOrReadOnly
+from rest_framework import permissions
+from core import custom_permissions
 
 
 class ApiRoot(generics.GenericAPIView):
@@ -64,10 +67,19 @@ class ColecaoList(generics.ListCreateAPIView):
     queryset = Colecao.objects.all()
     serializer_class = ColecaoSerializer
     name = 'colecao-list'
-    ordering_fields = ['titulo', 'autor', 'categoria', 'publicado_em']
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+    )
+
+    def perform_create(self, serializer):
+        serializer.save(colecionador=self.request.user)
 
 
 class ColecaoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Colecao.objects.all()
     serializer_class = ColecaoSerializer
     name = 'colecao-detail'
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        custom_permissions.IsCurrentUserOwnerOrReadOnly,
+    )

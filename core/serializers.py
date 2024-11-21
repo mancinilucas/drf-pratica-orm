@@ -58,10 +58,13 @@ class ColecaoSerializer(serializers.Serializer):
     livros = serializers.PrimaryKeyRelatedField(
         queryset=Livro.objects.all(), many=True)
     colecionador = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all())
+        queryset=User.objects.all(), required=False)
 
     def create(self, validated_data):
-        return Colecao.objects.create(**validated_data)
+        livros_data = validated_data.pop('livros', [])
+        colecao = Colecao.objects.create(**validated_data)
+        colecao.livros.set(livros_data)
+        return colecao
 
     def update(self, instance, validated_data):
         instance.nome = validated_data.get('nome', instance.nome)
