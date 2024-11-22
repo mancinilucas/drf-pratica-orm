@@ -42,9 +42,12 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework.authtoken',
     'drf_spectacular',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -156,3 +159,8 @@ SPECTACULAR_SETTINGS = {
         "persistAuthorization": True,
     },
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+    "http://192.168.1.100",
+]
