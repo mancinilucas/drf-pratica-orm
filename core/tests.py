@@ -2,7 +2,9 @@ from django.utils.http import urlencode
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from django.test import TestCase
 from .models import Colecao, Livro, Autor, Categoria
+from .serializers import LivroSerializer, ColecaoSerializer, CategoriaSerializer, AutorSerializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 
@@ -120,3 +122,171 @@ class ColecaoTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class ModelTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            "user01", "user01@example.com", "user01password")
+        self.categoria = Categoria.objects.create(nome="Ficção")
+        self.autor = Autor.objects.create(nome="Autor Teste")
+        self.livro = Livro.objects.create(
+            titulo="Livro de Teste",
+            autor=self.autor,
+            categoria=self.categoria,
+            publicado_em="2023-11-22"
+        )
+        self.colecao = Colecao.objects.create(
+            nome="Coleção de Teste",
+            descricao="Descrição da Coleção",
+            colecionador=self.user
+        )
+        self.colecao.livros.set([self.livro])
+
+    def test_categoria_str(self):
+        self.assertEqual(str(self.categoria), "Ficção")
+
+    def test_autor_str(self):
+        self.assertEqual(str(self.autor), "Autor Teste")
+
+    def test_livro_str(self):
+        self.assertEqual(str(self.livro), "Livro de Teste")
+
+    def test_colecao_str(self):
+        self.assertEqual(str(self.colecao), "Coleção de Teste - user01")
+
+    def test_criar_colecao_com_livros(self):
+        colecao = Colecao.objects.create(
+            nome="Nova Coleção",
+            descricao="Uma nova coleção de livros",
+            colecionador=self.user
+        )
+        colecao.livros.set([self.livro])
+        self.assertEqual(colecao.livros.count(), 1)
+
+    def test_relacionamento_livro_autor_categoria(self):
+        livro = Livro.objects.get(titulo="Livro de Teste")
+        self.assertEqual(livro.autor, self.autor)
+        self.assertEqual(livro.categoria, self.categoria)
+
+
+class SerializerTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            "user01", "user01@example.com", "user01password")
+        self.categoria = Categoria.objects.create(nome="Ficção")
+        self.autor = Autor.objects.create(nome="Autor Teste")
+        self.livro = Livro.objects.create(
+            titulo="Livro de Teste",
+            autor=self.autor,
+            categoria=self.categoria,
+            publicado_em="2023-11-22"
+        )
+        self.colecao = Colecao.objects.create(
+            nome="Coleção de Teste",
+            descricao="Descrição da Coleção",
+            colecionador=self.user
+        )
+        self.colecao.livros.set([self.livro])
+
+    def test_categoria_serializer_create(self):
+        data = {"nome": "Ficção Científica"}
+        serializer = CategoriaSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        categoria = serializer.save()
+        self.assertEqual(categoria.nome, "Ficção Científica")
+
+    def test_categoria_serializer_update(self):
+        categoria = Categoria.objects.create(nome="Aventura")
+        data = {"nome": "Aventura Atualizada"}
+        serializer = CategoriaSerializer(categoria, data=data)
+        self.assertTrue(serializer.is_valid())
+        updated_categoria = serializer.save()
+        self.assertEqual(updated_categoria.nome, "Aventura Atualizada")
+
+    def test_autor_serializer_create(self):
+        data = {"nome": "Autor Teste 2"}
+        serializer = AutorSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        autor = serializer.save()
+        self.assertEqual(autor.nome, "Autor Teste 2")
+
+    def test_livro_serializer_create(self):
+        data = {
+            "titulo": "Novo Livro",
+            "autor": self.autor.id,
+            "categoria": self.categoria.id,
+            "publicado_em": "2023-11-22"
+        }
+        serializer = LivroSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        livro = serializer.save()
+        self.assertEqual(livro.titulo, "Novo Livro")
+        self.assertEqual(livro.autor, self.autor)
+        self.assertEqual(livro.categoria, self.categoria)
+
+    def test_colecao_serializer_create(self):
+        data = {
+            "nome": "Coleção Nova",
+            "descricao": "Descrição da nova coleção",
+            "livros": [self.livro.id],
+            "colecionador": self.user.id
+        }
+        serializer = ColecaoSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        colecao = serializer.save()
+        self.assertEqual(colecao.nome, "Coleção Nova")
+        self.assertEqual(colecao.livros.count(), 1)
+        self.assertEqual(colecao.colecionador, self.user)
+
+    def test_colecao_serializer_update(self):
+        colecao = Colecao.objects.create(
+            nome="Coleção Antiga",
+            descricao="Descrição da coleção antiga",
+            colecionador=self.user
+        )
+        colecao.livros.set([self.livro])
+        data = {
+            "nome": "Coleção Atualizada",
+            "descricao": "Descrição atualizada",
+            "livros": [self.livro.id]
+        }
+        serializer = ColecaoSerializer(colecao, data=data)
+        self.assertTrue(serializer.is_valid())
+        updated_colecao = serializer.save()
+        self.assertEqual(updated_colecao.nome, "Coleção Atualizada")
+        self.assertEqual(updated_colecao.livros.count(), 1)
+
+    def test_colecao_serializer_invalid_data(self):
+        data = {
+            "descricao": "Coleção sem nome",
+            "livros": [self.livro.id]
+        }
+        serializer = ColecaoSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("nome", serializer.errors)
+
+    def test_livro_serializer_invalid_data(self):
+        data = {
+            "titulo": "Livro Inválido",
+            "autor": 999,
+            "categoria": self.categoria.id,
+            "publicado_em": "2023-11-22"
+        }
+        serializer = LivroSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("autor", serializer.errors)
+
+    def test_colecao_serializer_livros_detalhes(self):
+        data = {
+            "nome": "Coleção com Detalhes",
+            "livros": [self.livro.id],
+            "colecionador": self.user.id
+        }
+        serializer = ColecaoSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        colecao = serializer.save()
+        self.assertIn("livros_detalhes", serializer.data)
+        self.assertEqual(len(serializer.data["livros_detalhes"]), 1)
+        self.assertEqual(
+            serializer.data["livros_detalhes"][0]["titulo"], self.livro.titulo)
