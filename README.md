@@ -1,12 +1,17 @@
-# Exercício Prático: Biblioteca Django v2
+# Exercício Prático: Biblioteca Django v3
 
 ## Desafio
-Desenvolver um sistema de gerenciamento de biblioteca que permite a administração de livros, autores e categorias. Neste exercício, foi utilizado o Django ORM para realizar operações de CRUD, criação de serializers e class-based views.
+Desenvolver um sistema de gerenciamento de biblioteca que permite a administração de livros, autores, categorias e coleções. Neste exercício, foi utilizado o Django ORM para realizar operações de CRUD, criação de serializers e class-based views.
 
 ## Objetivos
 - Reimplementar as views utilizando class-based views.
 - Adicionar recursos de paginação de resultados, ordenação e busca de termos.
 - Criar um repositório público no GitHub para a submissão do exercício.
+- Implementar um modelo de coleção de livros associado a um usuário (colecionador).
+- Adicionar autenticação baseada em Token e permissões para garantir que apenas o colecionador
+possa gerenciar sua coleção.
+- Documentar a API com drf-spectacular.
+- Desenvolver testes automatizados para a funcionalidade de coleções.
 
 ## Documentação da API
 
@@ -16,55 +21,11 @@ Desenvolver um sistema de gerenciamento de biblioteca que permite a administraç
   GET /
 ```
 
-#### Retorna todos os livros cadastrados
+#### Documentação Open API
 
 ```http
-  GET /livros
+  GET /api/docs/
 ```
-
-#### Retorna um livro
-
-```http
-  GET /livros/${id}
-```
-
-| Parâmetro   | Tipo       | Descrição                                   |
-| :---------- | :--------- | :------------------------------------------ |
-| `id`      | `int` | **Obrigatório**. O ID do item que você deseja |
-
-
-#### Retorna todos os autores cadastrados
-
-```http
-  GET /autores
-```
-
-#### Retorna um autor
-
-```http
-  GET /livros/${id}
-```
-
-| Parâmetro   | Tipo       | Descrição                                   |
-| :---------- | :--------- | :------------------------------------------ |
-| `id`      | `int` | **Obrigatório**. O ID do item que você deseja |
-
-
-#### Retorna todas categorias cadastradas
-
-```http
-  GET /categorias
-```
-
-#### Retorna uma categoria
-
-```http
-  GET /categorias/${id}
-```
-
-| Parâmetro   | Tipo       | Descrição                                   |
-| :---------- | :--------- | :------------------------------------------ |
-| `id`      | `int` | **Obrigatório**. O ID do item que você deseja |
 
 ## Instalação
 
@@ -76,7 +37,7 @@ Desenvolver um sistema de gerenciamento de biblioteca que permite a administraç
 
 2. Entre no diretório do projeto clonado:
 ```
-  drf-pratica-orm
+  cd drf-pratica-orm
 ```
 
 3. Crie um ambiente virtual:
@@ -89,7 +50,7 @@ Desenvolver um sistema de gerenciamento de biblioteca que permite a administraç
 
 - Windows:
 ```
-  venv\Scripts\activate
+  venv\Scripts\Activate.ps1
 ```
 
 - Linux:
@@ -119,3 +80,6 @@ Desenvolver um sistema de gerenciamento de biblioteca que permite a administraç
 - Django 5.1
 - Django Rest Framework 3.15.2
 - Django Filter 24.3
+- Pytest 8.3.3
+- DRF Spectacular 0.27.2
+- Django CORS Headers 4.6.0
