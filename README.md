@@ -73,6 +73,14 @@ possa gerenciar sua coleção.
   python manage.py runserver
 ```
 
+8. Credenciais para testes:
+```
+  usuario: user01
+  senha: user01password
+  token: d883b8c125f2d5389601246618180ee4a79678de
+```
+
+
 
 ## Tecnologias
 - Python 3.12.4
